@@ -2,7 +2,7 @@ package com.example.assignmentgallery
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.assignmentgallery.ui.main.MainFragment
+import com.example.assignmentgallery.ui.fragments.list.ListFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,8 +11,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
-                    .commitNow()
+                    .replace(R.id.container, ListFragment())
+                    .commit()
         }
     }
 }
