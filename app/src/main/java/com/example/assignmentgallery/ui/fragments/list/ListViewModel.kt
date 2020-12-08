@@ -14,6 +14,8 @@ import com.example.assignmentgallery.utils.model.ImageModel
 class ListViewModel() : ViewModel() {
     lateinit var images : ImageListModel
     var photoLiveDataArray = MutableLiveData<MutableList<ImageModel>>()
+//    var selectedImageUrl = MutableLiveData<String>()
+    lateinit var urlChangeObserver: Observer<String>
 
     fun loadNewImages(context: Context, page: Int?) {
 

@@ -63,6 +63,12 @@ class ListFragment : Fragment() {
 
         pageCount.observe(context as MainActivity, pageChangeObserver)
 
+        val urlChaneObserver = Observer<String> { url ->
+            // Update the UI, in this case, a TextView.
+            (context as MainActivity).openDisplayFragment(url)
+        }
+        (recyclerView.adapter as ListAdapter).selectedImageUrl.observe(context as MainActivity, urlChaneObserver)
+
         photoArrayChangeObserver = Observer<MutableList<ImageModel>> { arr ->
             progressBar.visibility = View.GONE
             photoArray.addAll(arr)
