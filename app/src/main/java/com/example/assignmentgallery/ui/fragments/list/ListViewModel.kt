@@ -12,13 +12,13 @@ import com.example.assignmentgallery.utils.model.ImageListModel
 import com.example.assignmentgallery.utils.model.ImageModel
 
 class ListViewModel() : ViewModel() {
-    lateinit var images : ImageListModel
+    var isLoading = MutableLiveData<Boolean>(false)
+    var isEndofList = MutableLiveData<Boolean>(false)
     var photoLiveDataArray = MutableLiveData<MutableList<ImageModel>>()
-//    var selectedImageUrl = MutableLiveData<String>()
-    lateinit var urlChangeObserver: Observer<String>
 
     fun loadNewImages(context: Context, page: Int?) {
 
+        isLoading.value = true
         var photoArray = mutableListOf<ImageModel>()
 
         val queue = Volley.newRequestQueue(context)
@@ -27,6 +27,9 @@ class ListViewModel() : ViewModel() {
 
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET,url,null,Response.Listener {response ->
             val jsonObj = response.getJSONObject("photos")
+            var totalPages = jsonObj.getInt("pages")
+            var currentPage = jsonObj.getInt("page")
+            if (totalPages == currentPage) isEndofList.value = true
             val jsonArray = jsonObj.getJSONArray("photo")
             for (i in 0 until jsonArray.length())
             {
@@ -40,7 +43,11 @@ class ListViewModel() : ViewModel() {
                 photoArray.add(photoModel)
             }
             photoLiveDataArray.postValue(photoArray)
+
+            isLoading.value = false
+
         },Response.ErrorListener {
+            isLoading.value = false
             Toast.makeText(context,"Error is $it",Toast.LENGTH_SHORT).show()
         })
 

@@ -8,7 +8,6 @@ import com.example.assignmentgallery.ui.fragments.list.ListFragment
 class MainActivity : AppCompatActivity() {
 
     lateinit var displayFragment: DisplayFragment
-    var fragmentmanager = supportFragmentManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -25,9 +24,9 @@ class MainActivity : AppCompatActivity() {
         bundle.putString("url", url)
         displayFragment = DisplayFragment()
         displayFragment.arguments = bundle
-        fragmentmanager.beginTransaction()
-            .replace(R.id.container, displayFragment)
-            .commit()
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.container, displayFragment)
+                .commit()
     }
 
 }

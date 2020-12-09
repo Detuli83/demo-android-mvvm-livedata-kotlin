@@ -1,7 +1,6 @@
 package com.example.assignmentgallery.ui.fragments.list
 
 import android.content.Context
-import android.media.Image
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -28,7 +26,6 @@ class ListFragment : Fragment() {
     lateinit var loadMoreButton: Button
     var photoArray = mutableListOf<ImageModel>()
     lateinit var recyclerAdapter : ListAdapter
-    lateinit var photoArrayChangeObserver: Observer<MutableList<ImageModel>>
     var pageCount = MutableLiveData<Int>(1)
 
 
@@ -38,8 +35,6 @@ class ListFragment : Fragment() {
         recyclerView = view.findViewById<RecyclerView>(R.id.recyclerListFragment)
         progressBar = view.findViewById<ProgressBar>(R.id.progressListFragment)
         loadMoreButton = view.findViewById<Button>(R.id.loadMoreButton)
-
-        progressBar.visibility = View.VISIBLE
 
         loadMoreButton.setOnClickListener {
             pageCount.postValue(pageCount.value!! + 1)
@@ -53,29 +48,30 @@ class ListFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(ListViewModel::class.java)
 
-        recyclerAdapter = ListAdapter(activity as Context, photoArray)
+        viewModel.isEndofList.observe(context as MainActivity, {
+            if(it) loadMoreButton.visibility = View.GONE
+        })
+
+        recyclerAdapter = ListAdapter(context as Context, photoArray)
         recyclerView.adapter = recyclerAdapter
         recyclerView.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
 
-        val pageChangeObserver = Observer<Int> { page ->
-            viewModel.loadNewImages(context as MainActivity, page)
-        }
+        pageCount.observe(context as MainActivity, {
+            viewModel.loadNewImages(context as MainActivity, it)
+        })
 
-        pageCount.observe(context as MainActivity, pageChangeObserver)
+        (recyclerView.adapter as ListAdapter).selectedImageUrl.observe(context as MainActivity, {
+            (context as MainActivity).openDisplayFragment(it)
+        })
 
-        val urlChaneObserver = Observer<String> { url ->
-            // Update the UI, in this case, a TextView.
-            (context as MainActivity).openDisplayFragment(url)
-        }
-        (recyclerView.adapter as ListAdapter).selectedImageUrl.observe(context as MainActivity, urlChaneObserver)
+        viewModel.isLoading.observe(context as MainActivity, {
+            if(it) progressBar.visibility = View.VISIBLE else progressBar.visibility = View.GONE
+        })
 
-        photoArrayChangeObserver = Observer<MutableList<ImageModel>> { arr ->
-            progressBar.visibility = View.GONE
-            photoArray.addAll(arr)
+        viewModel.photoLiveDataArray.observe(context as MainActivity, {
+            photoArray.addAll(it)
             recyclerAdapter.notifyDataSetChanged()
-        }
-        viewModel.photoLiveDataArray.observe(context as MainActivity, photoArrayChangeObserver)
+        })
     }
-
 
 }
